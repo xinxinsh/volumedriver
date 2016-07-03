@@ -14,6 +14,8 @@ else
     exit
 fi
 
+. ${BUILDTOOLS}/this_build_configuration
+
 VOLUMEDRIVER_DIR=$(realpath ${2-../../volumedriver-core})
 
 if [ -d $VOLUMEDRIVER_DIR ]
@@ -26,13 +28,14 @@ fi
 
 PREFIX=$(pwd)
 
-# python version to use
-export PYTHON=${PYTHON:-/usr/bin/python2}
-
 #number of parallel makes to run
 PALLALLELLIZATION=${BUILD_NUM_PROCESSES:-6}
 
 export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig:$BUILDTOOLS/lib/pkgconfig
+
+# python version to use
+PYTHON_VERSION=$(pkg-config --variable=python_version buildtools)
+export PYTHON=${PYTHON:-/usr/bin/python${PYTHON_VERSION}}
 
 if [ "x${USE_CLANG}" == "xyes" ]
 then
@@ -169,11 +172,6 @@ else
     echo "Disabling static code analysis with clang analyzer"
     SCAN_BUILD_CMDLINE=""
 fi
-
-# function install_thrift_python {
-#     mkdir -p ${PREFIX}/lib/python2.7/dist-packages
-#     cp -R ${BUILDTOOLS}/lib/python2.7/site-packages/thrift ${PREFIX}/lib/python2.7/dist-packages
-# }
 
 function generate_coverage_info {
 
